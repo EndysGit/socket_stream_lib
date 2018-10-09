@@ -23,6 +23,18 @@ class basic_osstream : virtual public std::basic_ios<charT, traits>
 
 };
 
+class socket_base
+{
+public:
+// Flags:
+// ------
+//
+// State:
+// ------
+//
+//
+};
+
 int
 main()
 {
