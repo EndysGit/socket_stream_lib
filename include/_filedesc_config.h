@@ -3,7 +3,6 @@
 
 #define _FILEDESC_VERSION_MAJOR 0 
 #define _FILEDESC_VERSION_MINOR 1
-#define _FILEDESC_SEPORATOR 
 
 // Components defines
 #define _FILEDESC_NETWORK_COMP

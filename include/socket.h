@@ -15,10 +15,9 @@ using buf_t  = void *;
 class socket_base : public Ifd_base
 {
 public: 
-     
+    
     // Type    
-    using sock_type_t = uint8_t;
-
+    using sock_type_t = uint16_t;
     static constexpr sock_type_t sock_stream    = SOCK_STREAM;
     static constexpr sock_type_t sock_dgram     = SOCK_DGRAM;
     static constexpr sock_type_t sock_raw       = SOCK_RAW;
@@ -106,6 +105,7 @@ public:
     static constexpr net_sevice_type oper_admin_manag      = NET_SERVICE_TYPE_OAM;
     static constexpr net_sevice_type responsive_data       = NET_SERVICE_TYPE_RD;
 
+    static constexpr sock_opt_t so_netsvc_marking_level = SO_NETSVC_MARKING_LEVEL;
 #define	SO_NETSVC_MARKING_LEVEL	0x1119	/* Get QoS marking in effect for socket */
 
 #define	NETSVC_MRKNG_UNKNOWN		0	/* The outgoing network interface is not known */
@@ -136,54 +136,89 @@ typedef __uint32_t sae_connid_t;
 /*
  * Address families.
  */
-#define	AF_UNSPEC	0		/* unspecified */
-#define	AF_UNIX		1		/* local to host (pipes) */
+    using address_family_t = uint16_t;
+    static constexpr address_family_t af_unspec = AF_UNSPEC; 0  /* unspecified */
+    static constexpr address_family_t af_unix   = AF_UNIX; /* local to host (pipes) */
 #if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
-#define	AF_LOCAL	AF_UNIX		/* backward compatibility */
+    static constexpr address_family_t af_local = AF_LOCAL; /* backward compatibility */
 #endif	/* (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
-#define	AF_INET		2		/* internetwork: UDP, TCP, etc. */
+    static constexpr address_family_t af_inet = AF_INET; /* internetwork: UDP, TCP, etc. */
 #if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
-#define	AF_IMPLINK	3		/* arpanet imp addresses */
-#define	AF_PUP		4		/* pup protocols: e.g. BSP */
-#define	AF_CHAOS	5		/* mit CHAOS protocols */
-#define	AF_NS		6		/* XEROX NS protocols */
+    static constexpr address_family_t af_implink = AF_IMPLINK;/* arpanet imp addresses */
+    static constexpr address_family_t af_pup = AF_PUP;/* pup protocols: e.g. BSP */
+    static constexpr address_family_t af_chaos = AF_CHAOS;/* mit CHAOS protocols */ 
+    static constexpr address_family_t af_ns = AF_NS;/* XEROX NS protocols */
 #define	AF_ISO		7		/* ISO protocols */
+    static constexpr address_family_t = ;
 #define	AF_OSI		AF_ISO
+    static constexpr address_family_t = ;
 #define	AF_ECMA		8		/* European computer manufacturers */
+    static constexpr address_family_t = ;
 #define	AF_DATAKIT	9		/* datakit protocols */
+    static constexpr address_family_t = ;
 #define	AF_CCITT	10		/* CCITT protocols, X.25 etc */
+    static constexpr address_family_t = ;
 #define	AF_SNA		11		/* IBM SNA */
+    static constexpr address_family_t = ;
 #define	AF_DECnet	12		/* DECnet */
+    static constexpr address_family_t = ;
 #define	AF_DLI		13		/* DEC Direct data link interface */
+    static constexpr address_family_t = ;
 #define	AF_LAT		14		/* LAT */
+    static constexpr address_family_t = ;
 #define	AF_HYLINK	15		/* NSC Hyperchannel */
+    static constexpr address_family_t = ;
 #define	AF_APPLETALK	16		/* Apple Talk */
+    static constexpr address_family_t = ;
 #define	AF_ROUTE	17		/* Internal Routing Protocol */
+    static constexpr address_family_t = ;
 #define	AF_LINK		18		/* Link layer interface */
+    static constexpr address_family_t = ;
 #define	pseudo_AF_XTP	19		/* eXpress Transfer Protocol (no AF) */
+    static constexpr address_family_t = ;
 #define	AF_COIP		20		/* connection-oriented IP, aka ST II */
+    static constexpr address_family_t = ;
 #define	AF_CNT		21		/* Computer Network Technology */
+    static constexpr address_family_t = ;
 #define	pseudo_AF_RTIP	22		/* Help Identify RTIP packets */
+    static constexpr address_family_t = ;
 #define	AF_IPX		23		/* Novell Internet Protocol */
+    static constexpr address_family_t = ;
 #define	AF_SIP		24		/* Simple Internet Protocol */
+    static constexpr address_family_t = ;
 #define	pseudo_AF_PIP	25		/* Help Identify PIP packets */
+    static constexpr address_family_t = ;
 #define	AF_NDRV		27		/* Network Driver 'raw' access */
+    static constexpr address_family_t = ;
 #define	AF_ISDN		28		/* Integrated Services Digital Network */
+    static constexpr address_family_t = ;
 #define	AF_E164		AF_ISDN		/* CCITT E.164 recommendation */
+    static constexpr address_family_t = ;
 #define	pseudo_AF_KEY	29		/* Internal key-management function */
+    static constexpr address_family_t = ;
 #endif	/* (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
+    static constexpr address_family_t = ;
 #define	AF_INET6	30		/* IPv6 */
 #if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
 #define	AF_NATM		31		/* native ATM access */
+    static constexpr address_family_t = ;
 #define	AF_SYSTEM	32		/* Kernel event messages */
+    static constexpr address_family_t = ;
 #define	AF_NETBIOS	33		/* NetBIOS */
+    static constexpr address_family_t = ;
 #define	AF_PPP		34		/* PPP communication protocol */
+    static constexpr address_family_t = ;
 #define	pseudo_AF_HDRCMPLT 35		/* Used by BPF to not rewrite headers
 					in interface output routine */
+    static constexpr address_family_t = ;
 #define	AF_RESERVED_36	36		/* Reserved for internal usage */
+    static constexpr address_family_t = ;
 #define	AF_IEEE80211	37		/* IEEE 802.11 protocol */
+    static constexpr address_family_t = ;
 #define	AF_UTUN		38
+    static constexpr address_family_t = ;
 #define	AF_MAX		40
+    static constexpr address_family_t = ;
 #endif	/* (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
 
 #if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
