@@ -2,6 +2,7 @@
 #define SOCKET_STREAM_LIB_FILEDESC_H
 
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <inttypes.h>
@@ -22,6 +23,11 @@
 _FILEDESC_NAMESPACE_BEGIN
 
 #define BUF2V(x) static_cast<void *>(x)
+
+
+using fd_buf_sz_t = uint16_t;
+using flag_t  = int;
+using base_buf_t  = void *;
 
 namespace 
 {
@@ -51,11 +57,11 @@ public:
 class Ifd_base
 {
 public:
-    virtual Ifd_base& open(const std::string &path, flag_t flag, mode_t mode) = 0;
+    virtual Ifd_base* open(const std::string &path, flag_t flag, mode_t mode) = 0;
     virtual ssize_t read(base_buf_t buffer, fd_buf_sz_t size) = 0;
     virtual ssize_t write(base_buf_t buffer, fd_buf_sz_t size) = 0;
     virtual int close() = 0;
-    virtual ~Ifd_base() = 0;
+    virtual ~Ifd_base() {}; 
 };
 
 _FILEDESC_NAMESPACE_END

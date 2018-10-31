@@ -2,15 +2,12 @@
 #define SOCKET_STREAM_LIB_SOCKET_H
 
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "filedesc.h"
 
 _FD_NETWORK_NAMESPACE_BEGIN
-
-using flag_t  = int;
-using buf_t  = void *;
-
 
 class socket_base : public Ifd_base
 {
@@ -107,6 +104,7 @@ public:
 
     static constexpr sock_opt_t so_netsvc_marking_level = SO_NETSVC_MARKING_LEVEL;
 #define	SO_NETSVC_MARKING_LEVEL	0x1119	/* Get QoS marking in effect for socket */
+#endif
 
 #define	NETSVC_MRKNG_UNKNOWN		0	/* The outgoing network interface is not known */
 #define	NETSVC_MRKNG_LVL_L2		1	/* Default marking at layer 2 (for example Wi-Fi WMM) */
@@ -130,7 +128,9 @@ typedef __uint32_t sae_connid_t;
 /*
  * Level number for (get/set)sockopt() to apply to socket itself.
  */
+#ifndef SOL_SOCKET
 #define	SOL_SOCKET	0xffff		/* options for socket level */
+#endif
 
 
 /*
@@ -194,46 +194,53 @@ typedef __uint32_t sae_connid_t;
  * Protocol families, same as address families for now.
  */
     using protocol_family_t = uint16_t;
-#define	PF_UNSPEC	AF_UNSPEC
-#define	PF_LOCAL	AF_LOCAL
-#define	PF_UNIX		PF_LOCAL	/* backward compatibility */
-#define	PF_INET		AF_INET
-#define	PF_IMPLINK	AF_IMPLINK
-#define	PF_PUP		AF_PUP
-#define	PF_CHAOS	AF_CHAOS
-#define	PF_NS		AF_NS
-#define	PF_ISO		AF_ISO
-#define	PF_OSI		AF_ISO
-#define	PF_ECMA		AF_ECMA
-#define	PF_DATAKIT	AF_DATAKIT
-#define	PF_CCITT	AF_CCITT
-#define	PF_SNA		AF_SNA
-#define	PF_DECnet	AF_DECnet
-#define	PF_DLI		AF_DLI
-#define	PF_LAT		AF_LAT
-#define	PF_HYLINK	AF_HYLINK
-#define	PF_APPLETALK	AF_APPLETALK
-#define	PF_ROUTE	AF_ROUTE
-#define	PF_LINK		AF_LINK
-#define	PF_XTP		pseudo_AF_XTP	/* really just proto family, no AF */
-#define	PF_COIP		AF_COIP
-#define	PF_CNT		AF_CNT
-#define	PF_SIP		AF_SIP
-#define	PF_IPX		AF_IPX		/* same format as AF_NS */
-#define	PF_RTIP		pseudo_AF_RTIP	/* same format as AF_INET */
-#define	PF_PIP		pseudo_AF_PIP
-#define	PF_NDRV		AF_NDRV
-#define	PF_ISDN		AF_ISDN
-#define	PF_KEY		pseudo_AF_KEY
-#define	PF_INET6	AF_INET6
-#define	PF_NATM		AF_NATM
-#define	PF_SYSTEM	AF_SYSTEM
-#define	PF_NETBIOS	AF_NETBIOS
-#define	PF_PPP		AF_PPP
-#define	PF_RESERVED_36  AF_RESERVED_36
-#define	PF_UTUN		AF_UTUN
-#define	PF_MAX		AF_MAX
-
+    static constexpr protocol_family_t pf_unspec = af_unspec;
+    static constexpr protocol_family_t pf_unix = af_unix;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_local = pf_unix;
+#endif
+    static constexpr protocol_family_t pf_inet = af_inet;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_implink = af_implink;
+    static constexpr protocol_family_t pf_pup = af_pup;
+    static constexpr protocol_family_t pf_chaos = af_chaos;
+    static constexpr protocol_family_t pf_ns = af_ns;
+    static constexpr protocol_family_t pf_iso = af_iso;
+    static constexpr protocol_family_t pf_osi = pf_iso;
+    static constexpr protocol_family_t pf_ecma = af_ecma;
+    static constexpr protocol_family_t pf_datakit = af_datakit;
+    static constexpr protocol_family_t pf_ccitt = af_ccitt;
+    static constexpr protocol_family_t pf_sna = af_sna;
+    static constexpr protocol_family_t pf_dec_net = af_dec_net;
+    static constexpr protocol_family_t pf_dli = af_dli;
+    static constexpr protocol_family_t pf_lat = af_lat;
+    static constexpr protocol_family_t pf_hylink = af_hylink;
+    static constexpr protocol_family_t pf_appletalk = af_appletalk;
+    static constexpr protocol_family_t pf_route = af_route;
+    static constexpr protocol_family_t pf_link = af_link;
+    static constexpr protocol_family_t pf_xtp = pseudo_af_xtp;
+    static constexpr protocol_family_t pf_coip = af_coip;
+    static constexpr protocol_family_t pf_cnt = af_cnt;
+    static constexpr protocol_family_t pf_sip = af_sip;
+    static constexpr protocol_family_t pf_ipx = af_ipx;
+    static constexpr protocol_family_t pf_rtip = af_rtip;
+    static constexpr protocol_family_t pf_pip = pseudo_af_pip;
+    static constexpr protocol_family_t pf_ndrv = af_ndrv;
+    static constexpr protocol_family_t pf_isdn = af_isdn;
+    static constexpr protocol_family_t pf_key = pseudo_af_key;
+#endif	/* (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
+    static constexpr protocol_family_t pf_inet6 = af_inet6;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_natm = af_natm;
+    static constexpr protocol_family_t pf_system = af_system;
+    static constexpr protocol_family_t pf_netbios = af_netbios;
+    static constexpr protocol_family_t pf_ppp = af_ppp;
+    static constexpr protocol_family_t pf_reserved_36 = af_reserved_36;
+    static constexpr protocol_family_t pf_utun = af_utun;
+#endif
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_max = af_max; 
+#endif
 /*
  * These do not have socket-layer support:
  */
@@ -248,12 +255,14 @@ typedef __uint32_t sae_connid_t;
     // Options 
    // States
     
-    int send() override;
-    int read() override;
-    socket_base open() override;
-    int close() override;
-     ~socket_base() override;
-    socket_base();
+    ssize_t write(base_buf_t buffer, fd_buf_sz_t size) override;
+    ssize_t read(base_buf_t buffer, fd_buf_sz_t size) override;
+    Ifd_base* open(const std::string &path, flag_t flag, mode_t mode) override;
+    int close() noexcept override;
+    ~socket_base() noexcept ;
+    socket_base()
+    {
+    }
     void set_option();
     sock_opt_t get_option();
     // 
