@@ -46,22 +46,14 @@ namespace
     const fd_buf_sz_t c_bufsz_4096 = 4096;
 }
 
-class fd_exception : public std::exception
-{
-public:
-    fd_exception() noexcept;
-    virtual const char * whaat() const noexcept;
-    virtual ~fd_exception() noexcept; 
-};
-
 class Ifd_base
 {
 public:
     virtual Ifd_base* open(const std::string &path, flag_t flag, mode_t mode) = 0;
     virtual ssize_t read(base_buf_t buffer, fd_buf_sz_t size) = 0;
     virtual ssize_t write(base_buf_t buffer, fd_buf_sz_t size) = 0;
-    virtual int close() = 0;
-    virtual ~Ifd_base() {}; 
+    virtual void close() = 0;
+    virtual ~Ifd_base() noexcept {}
 };
 
 _FILEDESC_NAMESPACE_END

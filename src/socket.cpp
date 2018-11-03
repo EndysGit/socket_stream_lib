@@ -1,31 +1,66 @@
 #include "socket.h"
 
-using namespace filedesc;
-using namespace filedesc::network;
+_FD_NETWORK_NAMESPACE_BEGIN
+
+socket_base::sock_state
+socket_base::open(socket_base::address_family_t domain,
+     socket_base::sock_type_t type, 
+     socket_base::protocol_family_t protocol)
+{
+    m_domain   = domain;
+    m_type     = type;
+    m_protocol = protocol;
+
+    m_c_socket = socket(m_domain, m_type, m_protocol);
+
+    if (m_c_socket != 0)
+    {
+        m_state = invalid;
+        throw socket_exception("Failed to open the socket.");
+    }
+
+    m_state = valid | unused;
+
+    return socket_base::valid;
+}
+
 ssize_t
 socket_base::write(base_buf_t buffer, fd_buf_sz_t size)
 {
+    if (m_state != invalid)
+    {
+        ::write(m_c_socket, buffer, size);
+    }
+    else 
+    {
+        throw socket_exception("Attempt to write to invalid scoket.");
+    }
     return 0;
 }
 
 ssize_t
 socket_base::read(base_buf_t buffer, fd_buf_sz_t size)
 {
+    if (m_state != invalid)
+    {
+       ::read(m_c_socket, buffer, size);
+    }
+    else 
+    {
+        throw socket_exception("Attempt to read from invalid socket.");
+    }
     return 0;
 }
 
-Ifd_base*
-socket_base::open(const std::string &path, flag_t flag, mode_t mode)
+void
+socket_base::close() 
 {
-    socket_base *sock = new socket_base();
-    return sock; 
+    if (::close(m_c_socket) != 0)
+    {
+        m_state = invalid;
+
+        throw socket_exception("Failed to close the socket");
+    }
 }
 
-int 
-socket_base::close() noexcept
-{
-    return 0;
-}
-
-socket_base::~socket_base() noexcept 
-{}
+_FD_NETWORK_NAMESPACE_END

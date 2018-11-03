@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.10)
     # All internal headers
     set(INCLUDE_DIRS include)
     # ALL src SRC_FILES
-    file(GLOB_RECURSE SRC_FILES src/*.cpp)
+    file(GLOB_RECURSE SRC_FILES src/*.cpp include/*)
 
     include_directories(${INCLUDE_DIRS})
     add_subdirectory(${SUB_DIRS})
