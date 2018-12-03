@@ -63,4 +63,21 @@ socket_base::close()
     }
 }
 
+bool
+socket_base::is_valid()
+{
+    return static_cast<bool>(m_state & valid);    
+}
+
+bool 
+socket_base::is_used()
+{
+    return static_cast<bool>(m_state & used);
+}
+
+void 
+socket_base::set_state(sock_state state)
+{
+
+}
 _FD_NETWORK_NAMESPACE_END

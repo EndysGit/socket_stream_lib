@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
 #include "filedesc.h"
@@ -50,12 +51,11 @@ public:
         return m_socket_exception_message.c_str();
     }
 
-    ~socket_exception()
+    ~socket_exception() noexcept
     {
     }
 private:
     std::string m_socket_exception_message;
-
 };
 
 class socket_base : public Ifd_base
@@ -348,7 +348,10 @@ typedef __uint32_t sae_connid_t;
                     socklen_t option_len);
     sock_opt_t get_option();
 
+
+
     bool is_valid();
+    bool is_used();
 
     ~socket_base() noexcept override
     {
@@ -363,7 +366,8 @@ typedef __uint32_t sae_connid_t;
         }
         catch(...)
         {
-
+            std::cerr << e.what() + '\n';
+            m_state = invalid;       
         }
     }
     // local buffer if there is no opportunety to get date from system buffer
@@ -372,6 +376,8 @@ typedef __uint32_t sae_connid_t;
     // derived classes:
     // copy constructor
     // for stream and seq sockets 
+protected:
+    void set_state(sock_state state);
 private:
     c_socket_t m_c_socket;
     
