@@ -243,7 +243,7 @@ typedef __uint32_t sae_connid_t;
 /*
  * Protocol families, same as address families for now.
  */
-    using protocol_family_t = uint16_t;
+    using protocol_family_t = uint32_t;
     static constexpr protocol_family_t pf_unspec      = af_unspec;
     static constexpr protocol_family_t pf_unix        = af_unix;
 #if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
@@ -273,7 +273,7 @@ typedef __uint32_t sae_connid_t;
     static constexpr protocol_family_t pf_cnt         = af_cnt;
     static constexpr protocol_family_t pf_sip         = af_sip;
     static constexpr protocol_family_t pf_ipx         = af_ipx;
-    static constexpr protocol_family_t pf_rtip        = af_rtip;
+    static constexpr protocol_family_t pf_rtip        = pseudo_af_rtip;
     static constexpr protocol_family_t pf_pip         = pseudo_af_pip;
     static constexpr protocol_family_t pf_ndrv        = af_ndrv;
     static constexpr protocol_family_t pf_isdn        = af_isdn;
@@ -361,12 +361,12 @@ typedef __uint32_t sae_connid_t;
         }
         catch(socket_exception& e)
         {
-            std::cerr << e.what() + '\n';
+            std::cerr << e.what() << '\n';
             m_state = invalid;
         }
         catch(...)
         {
-            std::cerr << e.what() + '\n';
+            std::cerr << "An exception apeared.\n";
             m_state = invalid;       
         }
     }
