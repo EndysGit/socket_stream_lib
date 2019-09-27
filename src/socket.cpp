@@ -4,8 +4,8 @@ _FD_NETWORK_NAMESPACE_BEGIN
 
 socket_base::sock_state
 socket_base::open(socket_base::address_family_t domain,
-     socket_base::sock_type_t type, 
-     socket_base::protocol_family_t protocol)
+                  socket_base::sock_type_t type, 
+                  socket_base::protocol_family_t protocol)
 {
     m_domain   = domain;
     m_type     = type;

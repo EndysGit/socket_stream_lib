@@ -17,4 +17,4 @@ cmake_minimum_required(VERSION 3.10)
     include_directories(${INCLUDE_DIRS})
     add_subdirectory(${SUB_DIRS})
 
-    add_executable(${PROJECT_NAME} ${SRC_FILES})
+    add_executable(${PROJECT_NAME} ${SRC_FILES} src/base_server.cpp include/base_server.h src/base_client.cpp include/base_client.h)

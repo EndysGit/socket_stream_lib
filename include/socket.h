@@ -181,8 +181,6 @@ typedef __uint32_t sae_connid_t;
  */
     static constexpr auto sol_socket = SOL_SOCKET; /* options for socket level */
 
-
-
 /*
  * Address families.
  */
