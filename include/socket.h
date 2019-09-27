@@ -2,20 +2,66 @@
 #define SOCKET_STREAM_LIB_SOCKET_H
 
 #include <sys/stat.h>
+#include <sys/socket.h>
+#include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
 #include "filedesc.h"
 
 _FD_NETWORK_NAMESPACE_BEGIN
 
-using flag_t  = int;
-using buf_t  = void *;
+namespace 
+{
+    const fd_buf_sz_t c_bufsz_1    = 1;
+    const fd_buf_sz_t c_bufsz_2    = 2;
+    const fd_buf_sz_t c_bufsz_4    = 4;  
+    const fd_buf_sz_t c_bufsz_8    = 8; 
+    const fd_buf_sz_t c_bufsz_16   = 16;
+    const fd_buf_sz_t c_bufsz_32   = 32;
+    const fd_buf_sz_t c_bufsz_64   = 64;  
+    const fd_buf_sz_t c_bufsz_128  = 128;
+    const fd_buf_sz_t c_bufsz_256  = 256;
+    const fd_buf_sz_t c_bufsz_512  = 512;
+    const fd_buf_sz_t c_bufsz_1024 = 1024;  
+    const fd_buf_sz_t c_bufsz_2048 = 2048;
+    const fd_buf_sz_t c_bufsz_4096 = 4096;
+}
 
+class socket_exception : public std::exception
+{
+public:
+    socket_exception()
+    {
+    }
+    socket_exception(const socket_exception& socket_exception) : 
+                     m_socket_exception_message(socket_exception.m_socket_exception_message)
+    {
+    }
+    socket_exception(const std::string& exception_message) : 
+                     m_socket_exception_message(exception_message)
+    {
+    }
+    socket_exception(const char* exception_message) : 
+                     m_socket_exception_message(exception_message)
+    {
+    }
+
+    const char* what() const noexcept override
+    {
+        return m_socket_exception_message.c_str();
+    }
+
+    ~socket_exception() noexcept
+    {
+    }
+private:
+    std::string m_socket_exception_message;
+};
 
 class socket_base : public Ifd_base
 {
 public: 
-    
+    using c_socket_t = int;
     // Type    
     using sock_type_t = uint16_t;
     static constexpr sock_type_t sock_stream    = SOCK_STREAM;
@@ -105,33 +151,35 @@ public:
     static constexpr net_sevice_type oper_admin_manag      = NET_SERVICE_TYPE_OAM;
     static constexpr net_sevice_type responsive_data       = NET_SERVICE_TYPE_RD;
 
-    static constexpr sock_opt_t so_netsvc_marking_level = SO_NETSVC_MARKING_LEVEL;
-#define	SO_NETSVC_MARKING_LEVEL	0x1119	/* Get QoS marking in effect for socket */
+    static constexpr sock_opt_t so_netsvc_marking_level    = SO_NETSVC_MARKING_LEVEL; /* Get QoS marking in effect for socket */
+#endif
 
-#define	NETSVC_MRKNG_UNKNOWN		0	/* The outgoing network interface is not known */
-#define	NETSVC_MRKNG_LVL_L2		1	/* Default marking at layer 2 (for example Wi-Fi WMM) */
-#define	NETSVC_MRKNG_LVL_L3L2_ALL	2	/* Layer 3 DSCP marking and layer 2 marking for all Network Service Types */
-#define	NETSVC_MRKNG_LVL_L3L2_BK	3	/* The system policy limits layer 3 DSCP marking and layer 2 marking
+#ifdef __APPLE__
+    static constexpr uint16_t netsvc_mrkng_unknown = NETSVC_MRKNG_UNKNOWN; /* The outgoing network interface is not known */
+    static constexpr uint16_t netsvc_mrkng_lvl_l2 = NETSVC_MRKNG_LVL_L2; /* Default marking at layer 2 (for example Wi-Fi WMM) */
+    static constexpr uint16_t netsvc_mrkng_lvl_l3l2_all = NETSVC_MRKNG_LVL_L3L2_ALL; /* Layer 3 DSCP marking and layer 2 marking for all Network Service Types */
+    static constexpr uint16_t netsvc_mrkng_lvl_l3l2_bk = NETSVC_MRKNG_LVL_L3L2_BK; /* The system policy limits layer 3 DSCP marking and layer 2 marking
 						 * to background Network Service Types */
 
 typedef __uint32_t sae_associd_t;
-#define	SAE_ASSOCID_ANY	0
-#define	SAE_ASSOCID_ALL	((sae_associd_t)(-1ULL))
+    static constexpr sae_associd_t sae_associd_any = SAE_ASSOCID_ANY;
+    static constexpr sae_associd_t sae_associd_all = SAE_ASSOCID_ALL;
 
 typedef __uint32_t sae_connid_t;
-#define	SAE_CONNID_ANY	0
-#define	SAE_CONNID_ALL	((sae_connid_t)(-1ULL))
-
+    static constexpr sae_connid_t sae_connid_any = SAE_CONNID_ANY;
+    static constexpr sae_connid_t sae_connid_all = SAE_CONNID_ALL;
+ 
 /* connectx() flag parameters */
-#define	CONNECT_RESUME_ON_READ_WRITE	0x1 /* resume connect() on read/write */
-#define	CONNECT_DATA_IDEMPOTENT		0x2 /* data is idempotent */
-#define	CONNECT_DATA_AUTHENTICATED	0x4 /* data includes security that replaces the TFO-cookie */
+    static constexpr uint16_t connect_resume_on_read_write = CONNECT_RESUME_ON_READ_WRITE; /* resume connect() on read/write */
+    static constexpr uint16_t connect_data_idempotent      = CONNECT_DATA_IDEMPOTENT; /* data is idempotent */
+    static constexpr uint16_t connect_data_authenticated   = CONNECT_DATA_AUTHENTICATED; /* data includes security that replaces the TFO-cookie */
+#endif
+
 
 /*
  * Level number for (get/set)sockopt() to apply to socket itself.
  */
-#define	SOL_SOCKET	0xffff		/* options for socket level */
-
+    static constexpr auto sol_socket = SOL_SOCKET; /* options for socket level */
 
 /*
  * Address families.
@@ -193,80 +241,151 @@ typedef __uint32_t sae_connid_t;
 /*
  * Protocol families, same as address families for now.
  */
-    using protocol_family_t = uint16_t;
-#define	PF_UNSPEC	AF_UNSPEC
-#define	PF_LOCAL	AF_LOCAL
-#define	PF_UNIX		PF_LOCAL	/* backward compatibility */
-#define	PF_INET		AF_INET
-#define	PF_IMPLINK	AF_IMPLINK
-#define	PF_PUP		AF_PUP
-#define	PF_CHAOS	AF_CHAOS
-#define	PF_NS		AF_NS
-#define	PF_ISO		AF_ISO
-#define	PF_OSI		AF_ISO
-#define	PF_ECMA		AF_ECMA
-#define	PF_DATAKIT	AF_DATAKIT
-#define	PF_CCITT	AF_CCITT
-#define	PF_SNA		AF_SNA
-#define	PF_DECnet	AF_DECnet
-#define	PF_DLI		AF_DLI
-#define	PF_LAT		AF_LAT
-#define	PF_HYLINK	AF_HYLINK
-#define	PF_APPLETALK	AF_APPLETALK
-#define	PF_ROUTE	AF_ROUTE
-#define	PF_LINK		AF_LINK
-#define	PF_XTP		pseudo_AF_XTP	/* really just proto family, no AF */
-#define	PF_COIP		AF_COIP
-#define	PF_CNT		AF_CNT
-#define	PF_SIP		AF_SIP
-#define	PF_IPX		AF_IPX		/* same format as AF_NS */
-#define	PF_RTIP		pseudo_AF_RTIP	/* same format as AF_INET */
-#define	PF_PIP		pseudo_AF_PIP
-#define	PF_NDRV		AF_NDRV
-#define	PF_ISDN		AF_ISDN
-#define	PF_KEY		pseudo_AF_KEY
-#define	PF_INET6	AF_INET6
-#define	PF_NATM		AF_NATM
-#define	PF_SYSTEM	AF_SYSTEM
-#define	PF_NETBIOS	AF_NETBIOS
-#define	PF_PPP		AF_PPP
-#define	PF_RESERVED_36  AF_RESERVED_36
-#define	PF_UTUN		AF_UTUN
-#define	PF_MAX		AF_MAX
+    using protocol_family_t = uint32_t;
+    static constexpr protocol_family_t pf_unspec      = af_unspec;
+    static constexpr protocol_family_t pf_unix        = af_unix;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_local       = pf_unix;
+#endif
+    static constexpr protocol_family_t pf_inet        = af_inet;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_implink     = af_implink;
+    static constexpr protocol_family_t pf_pup         = af_pup;
+    static constexpr protocol_family_t pf_chaos       = af_chaos;
+    static constexpr protocol_family_t pf_ns          = af_ns;
+    static constexpr protocol_family_t pf_iso         = af_iso;
+    static constexpr protocol_family_t pf_osi         = pf_iso;
+    static constexpr protocol_family_t pf_ecma        = af_ecma;
+    static constexpr protocol_family_t pf_datakit     = af_datakit;
+    static constexpr protocol_family_t pf_ccitt       = af_ccitt;
+    static constexpr protocol_family_t pf_sna         = af_sna;
+    static constexpr protocol_family_t pf_dec_net     = af_dec_net;
+    static constexpr protocol_family_t pf_dli         = af_dli;
+    static constexpr protocol_family_t pf_lat         = af_lat;
+    static constexpr protocol_family_t pf_hylink      = af_hylink;
+    static constexpr protocol_family_t pf_appletalk   = af_appletalk;
+    static constexpr protocol_family_t pf_route       = af_route;
+    static constexpr protocol_family_t pf_link        = af_link;
+    static constexpr protocol_family_t pf_xtp         = pseudo_af_xtp;
+    static constexpr protocol_family_t pf_coip        = af_coip;
+    static constexpr protocol_family_t pf_cnt         = af_cnt;
+    static constexpr protocol_family_t pf_sip         = af_sip;
+    static constexpr protocol_family_t pf_ipx         = af_ipx;
+    static constexpr protocol_family_t pf_rtip        = pseudo_af_rtip;
+    static constexpr protocol_family_t pf_pip         = pseudo_af_pip;
+    static constexpr protocol_family_t pf_ndrv        = af_ndrv;
+    static constexpr protocol_family_t pf_isdn        = af_isdn;
+    static constexpr protocol_family_t pf_key         = pseudo_af_key;
+#endif	/* (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
+    static constexpr protocol_family_t pf_inet6       = af_inet6;
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_natm        = af_natm;
+    static constexpr protocol_family_t pf_system      = af_system;
+    static constexpr protocol_family_t pf_netbios     = af_netbios;
+    static constexpr protocol_family_t pf_ppp         = af_ppp;
+    static constexpr protocol_family_t pf_reserved_36 = af_reserved_36;
+    static constexpr protocol_family_t pf_utun        = af_utun;
+#endif
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    static constexpr protocol_family_t pf_max         = af_max; 
 
 /*
  * These do not have socket-layer support:
  */
-#define	PF_VLAN		((uint32_t)0x766c616e)	/* 'vlan' */
-#define	PF_BOND		((uint32_t)0x626f6e64)	/* 'bond' */
-
+    static constexpr protocol_family_t pf_vlan        = PF_VLAN; /* 'vlan' */
+    static constexpr protocol_family_t pf_bond        = PF_BOND; /* 'bond' */
+#endif
 
 /*
  * Maximum queue length specifiable by listen.
  */
-#define	SOMAXCONN	128
-    // Options 
-   // States
+    static constexpr uint16_t somaconn = SOMAXCONN; 
+
+
+    // States
+    using sock_state = uint16_t;
+    static constexpr sock_state valid   = 0x1;
+    static constexpr sock_state invalid = 0x2;
+    static constexpr sock_state used    = 0x4;
+    static constexpr sock_state unused  = 0x8;
+
+    socket_base() : m_state(invalid) 
+    {
+    }
+    socket_base(address_family_t domain    = af_inet, 
+                sock_type_t type           = sock_raw, 
+                protocol_family_t protocol = 0) : m_domain(domain), 
+                                                  m_type(sock_raw), 
+                                                  m_protocol(protocol),
+                                                  m_state(unused) 
+    {
+        m_c_socket = socket(m_domain, m_type, m_protocol);
+
+        if (m_c_socket != 0)
+        {
+            m_state = invalid;
+            throw socket_exception("Socket can't be created.");
+        }
+
+        m_state |= valid;
+    } 
+
+    virtual sock_state open(address_family_t domain, sock_type_t type, protocol_family_t protocol);
+
+    // Возможно стоит выставлять состояние сокета на время чтения/записи в состояние used
+    ssize_t write(base_buf_t buffer, fd_buf_sz_t size) override;
+    ssize_t read(base_buf_t buffer, fd_buf_sz_t size) override;
+
+    void close() override;
     
-    int send() override;
-    int read() override;
-    socket_base open() override;
-    int close() override;
-     ~socket_base() override;
-    socket_base();
-    void set_option();
+    
+    void set_option(int socket,
+                    int level, 
+                    int option_name, 
+                    const void *option_value,
+                    socklen_t option_len);
     sock_opt_t get_option();
-    // 
-    //
+
+
+
+    bool is_valid();
+    bool is_used();
+
+    ~socket_base() noexcept override
+    {
+        try 
+        {
+            ::close(m_c_socket);
+        }
+        catch(socket_exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            m_state = invalid;
+        }
+        catch(...)
+        {
+            std::cerr << "An exception apeared.\n";
+            m_state = invalid;       
+        }
+    }
     // local buffer if there is no opportunety to get date from system buffer
     // c_sock(); -- ? suppose no to keep incapsulation 
     //
     // derived classes:
-    //  copy constructor
+    // copy constructor
     // for stream and seq sockets 
-    //  is_connected 
+protected:
+    void set_state(sock_state state);
 private:
+    c_socket_t m_c_socket;
     
+    address_family_t m_domain;
+    sock_type_t m_type;
+    protocol_family_t m_protocol;    
+    
+    sock_state m_state;
+    // Deleted for sockets 
+    using Ifd_base::open;
 };
 
 _FD_NETWORK_NAMESPACE_END

@@ -12,9 +12,9 @@ cmake_minimum_required(VERSION 3.10)
     # All internal headers
     set(INCLUDE_DIRS include)
     # ALL src SRC_FILES
-    file(GLOB_RECURSE SRC_FILES src/*.cpp)
+    file(GLOB_RECURSE SRC_FILES src/*.cpp include/*)
 
     include_directories(${INCLUDE_DIRS})
     add_subdirectory(${SUB_DIRS})
 
-    add_executable(${PROJECT_NAME} ${SRC_FILES})
+    add_executable(${PROJECT_NAME} ${SRC_FILES} src/base_server.cpp include/base_server.h src/base_client.cpp include/base_client.h)
